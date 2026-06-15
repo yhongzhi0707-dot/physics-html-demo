@@ -304,6 +304,7 @@
           <li>斜面上标出：初始位置、刚接触弹簧位置、最大压缩位置、回弹位置、最终停止位置。</li>
           <li>弹力只在接触弹簧后出现；摩擦力始终与相对运动趋势或运动方向相反。</li>
           <li>虚线箭头 mg·sinθ 是重力沿斜面方向的教学辅助分解，便于课堂讲解。</li>
+          <li>挡板始终沿斜面法线方向绘制，因此挡板面垂直于斜面，弹簧轴线平行斜面。</li>
         </ul>
       </section>
       <section class="card panel">
@@ -312,6 +313,7 @@
 未接触弹簧：F合 = mg sinθ - f
 接触弹簧：F合 = mg sinθ - kx - f
 x = max(0, s - L)，且 0 ≤ x ≤ x_max
+挡板位置：s = L + 弹簧原长；挡板方向 = 斜面法线方向
 Eₖ = 1/2 mv²，Eₛ = 1/2 kx²
 摩擦耗能按 μmgcosθ · |ds| 累计
 若 |mg sinθ-kx| ≤ μmgcosθ 且 v≈0，则静止</div>
@@ -465,21 +467,53 @@ Eₖ = 1/2 mv²，Eₛ = 1/2 kx²
       ctx.fillText(text, p.x, p.y - 44 - yShift); ctx.restore();
     }
 
-    function drawSpring(startS, compression) {
+    function drawSpring(compression) {
       const coils = 9;
+      const boardS = params.L + springFreeLength;
       const length = Math.max(0.12, springFreeLength - compression);
+      const contactS = boardS - length;
       const amp = 18;
-      const base = worldToCanvas(startS, -26);
-      const end = worldToCanvas(startS + length, -26);
-      ctx.save(); ctx.strokeStyle = '#7c3aed'; ctx.lineWidth = 4; ctx.lineJoin = 'round';
-      ctx.beginPath(); ctx.moveTo(base.x, base.y);
+      const base = worldToCanvas(contactS, -26);
+      const end = worldToCanvas(boardS, -26);
+      const boardCenter = worldToCanvas(boardS, -26);
+      const halfBoard = 58;
+      const halfThickness = 8;
+      const n = boardCenter.normal;
+      const a = boardCenter.along;
+
+      ctx.save();
+      ctx.fillStyle = '#475569';
+      ctx.strokeStyle = '#1e293b';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(boardCenter.x + n.x * halfBoard + a.x * halfThickness, boardCenter.y + n.y * halfBoard + a.y * halfThickness);
+      ctx.lineTo(boardCenter.x - n.x * halfBoard + a.x * halfThickness, boardCenter.y - n.y * halfBoard + a.y * halfThickness);
+      ctx.lineTo(boardCenter.x - n.x * halfBoard - a.x * halfThickness, boardCenter.y - n.y * halfBoard - a.y * halfThickness);
+      ctx.lineTo(boardCenter.x + n.x * halfBoard - a.x * halfThickness, boardCenter.y + n.y * halfBoard - a.y * halfThickness);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
+
+      ctx.save();
+      ctx.strokeStyle = '#7c3aed';
+      ctx.lineWidth = 4;
+      ctx.lineJoin = 'round';
+      ctx.beginPath();
+      ctx.moveTo(base.x, base.y);
       for (let i = 1; i <= coils * 2; i++) {
         const q = i / (coils * 2 + 1);
-        const mid = worldToCanvas(startS + length * q, -26 + (i % 2 ? amp : -amp));
+        const mid = worldToCanvas(contactS + length * q, -26 + (i % 2 ? amp : -amp));
         ctx.lineTo(mid.x, mid.y);
       }
-      ctx.lineTo(end.x, end.y); ctx.stroke();
-      ctx.fillStyle = '#4c1d95'; ctx.fillRect(end.x - 8, end.y - 45, 16, 90); ctx.restore();
+      ctx.lineTo(end.x, end.y);
+      ctx.stroke();
+
+      ctx.fillStyle = '#7c3aed';
+      ctx.beginPath();
+      ctx.arc(base.x, base.y, 6, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
     }
 
     function draw() {
@@ -487,7 +521,7 @@ Eₖ = 1/2 mv²，Eₛ = 1/2 kx²
       const theta = params.thetaDeg * Math.PI / 180;
       const forces = forceState(state.s, state.v);
       const x = forces.x;
-      const rampEndS = params.L + springFreeLength + 0.35;
+      const rampEndS = params.L + springFreeLength + 0.45;
       const a = worldToCanvas(0, 0), b = worldToCanvas(rampEndS, 0), ground = worldToCanvas(rampEndS, 180);
 
       ctx.save();
@@ -502,7 +536,7 @@ Eₖ = 1/2 mv²，Eₛ = 1/2 kx²
       drawMarker(markers.rebound, '回弹位置', '#ea580c', 54);
       drawMarker(markers.finalStop, '最终停止位置', '#dc2626', 72);
 
-      drawSpring(params.L, x);
+      drawSpring(x);
 
       const block = worldToCanvas(state.s, -32);
       const size = 54;
