@@ -3,360 +3,197 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>高中物理：斜面弹簧模型动画</title>
+  <title>高中物理：斜面弹簧模型</title>
   <style>
     :root {
-      color-scheme: light;
-      --bg: #f4f7fb;
-      --panel: #ffffff;
-      --ink: #203040;
-      --muted: #627084;
-      --accent: #2563eb;
-      --accent2: #0f766e;
-      --danger: #dc2626;
-      --warn: #d97706;
-      --shadow: 0 12px 30px rgba(30, 41, 59, 0.12);
-      --line: #d6deeb;
+      --bg: #f6f8fb;
+      --panel: #fff;
+      --ink: #172033;
+      --muted: #5d6b80;
+      --line: #d8e0ec;
+      --red: #dc2626;
+      --blue: #2563eb;
+      --orange: #f59e0b;
+      --purple: #7c3aed;
+      --green: #16a34a;
+      --shadow: 0 14px 34px rgba(15, 23, 42, .10);
     }
-
     * { box-sizing: border-box; }
-
     body {
       margin: 0;
+      color: var(--ink);
+      background: var(--bg);
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", "Microsoft YaHei", sans-serif;
-      background: radial-gradient(circle at top left, #e0f2fe 0, transparent 34%), var(--bg);
-      color: var(--ink);
     }
-
-    header {
-      padding: 22px 28px 10px;
-      text-align: center;
-    }
-
-    h1 {
-      margin: 0 0 8px;
-      font-size: clamp(24px, 3vw, 38px);
-      letter-spacing: 0.02em;
-    }
-
-    .subtitle {
-      margin: 0 auto;
-      max-width: 980px;
-      color: var(--muted);
-      line-height: 1.65;
-    }
-
-    main {
-      width: min(1440px, calc(100vw - 32px));
-      margin: 18px auto 32px;
+    header { padding: 18px 28px 8px; text-align: center; }
+    h1 { margin: 0 0 8px; font-size: clamp(28px, 3.2vw, 44px); }
+    .subtitle { margin: 0 auto; max-width: 1100px; color: var(--muted); font-size: 18px; line-height: 1.65; }
+    .app {
+      width: min(1680px, calc(100vw - 28px));
+      margin: 16px auto 28px;
       display: grid;
-      grid-template-columns: minmax(680px, 1.45fr) minmax(360px, 0.8fr);
-      gap: 18px;
-      align-items: start;
+      grid-template-columns: minmax(760px, 72fr) minmax(330px, 28fr);
+      grid-template-areas: "scene side" "controls controls";
+      gap: 16px;
+      align-items: stretch;
     }
-
-    .card {
-      background: rgba(255, 255, 255, 0.94);
-      border: 1px solid rgba(214, 222, 235, 0.9);
-      border-radius: 20px;
-      box-shadow: var(--shadow);
-    }
-
-    .scene-card { padding: 16px; }
-
-    .canvas-wrap {
-      position: relative;
-      width: 100%;
-      aspect-ratio: 16 / 9;
-      min-height: 470px;
-      background: linear-gradient(#eef7ff 0 64%, #e8f4e9 64% 100%);
+    .card { background: var(--panel); border: 1px solid var(--line); border-radius: 22px; box-shadow: var(--shadow); }
+    .scene-card { grid-area: scene; padding: 14px; }
+    .side { grid-area: side; display: grid; gap: 14px; }
+    .controls-card { grid-area: controls; padding: 16px 18px; }
+    .stage-banner {
+      margin-bottom: 12px;
+      padding: 12px 16px;
       border-radius: 16px;
-      overflow: hidden;
-      border: 1px solid var(--line);
+      background: #eaf2ff;
+      color: #173b83;
+      border: 1px solid #bfd5ff;
+      font-size: 28px;
+      font-weight: 900;
+      text-align: center;
+      letter-spacing: .04em;
     }
-
-    canvas {
+    .canvas-frame {
       width: 100%;
-      height: 100%;
-      display: block;
-    }
-
-    .controls {
-      display: grid;
-      grid-template-columns: repeat(5, minmax(120px, 1fr));
-      gap: 12px;
-      margin-top: 14px;
-    }
-
-    label {
-      display: grid;
-      gap: 5px;
-      font-size: 13px;
-      color: var(--muted);
-      font-weight: 650;
-    }
-
-    input[type="range"] { width: 100%; }
-
-    .value {
-      font-variant-numeric: tabular-nums;
-      color: var(--ink);
-      font-weight: 800;
-    }
-
-    .buttons {
-      margin-top: 14px;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      align-items: center;
-    }
-
-    button {
-      border: 0;
-      border-radius: 999px;
-      padding: 10px 16px;
-      color: white;
-      background: var(--accent);
-      font-weight: 800;
-      cursor: pointer;
-      box-shadow: 0 8px 18px rgba(37, 99, 235, 0.22);
-    }
-
-    button.secondary {
-      background: #475569;
-      box-shadow: 0 8px 18px rgba(71, 85, 105, 0.18);
-    }
-
-    .speed-note {
-      margin-left: auto;
-      color: var(--muted);
-      font-size: 13px;
-    }
-
-    .side {
-      display: grid;
-      gap: 14px;
-    }
-
-    .panel { padding: 16px; }
-
-    h2 {
-      margin: 0 0 12px;
-      font-size: 20px;
-    }
-
-    .data-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
-
-    .metric {
-      padding: 10px;
-      background: #f8fafc;
+      aspect-ratio: 4 / 3;
+      min-height: 650px;
       border: 1px solid var(--line);
-      border-radius: 12px;
-    }
-
-    .metric .name {
-      display: block;
-      color: var(--muted);
-      font-size: 12px;
-      margin-bottom: 5px;
-    }
-
-    .metric .num {
-      font-weight: 850;
-      font-variant-numeric: tabular-nums;
-      font-size: 18px;
-    }
-
-    .legend, .notes {
-      line-height: 1.65;
-      color: var(--muted);
-      padding-left: 18px;
-      margin: 8px 0 0;
-    }
-
-    .legend b { color: var(--ink); }
-
-    .status {
-      padding: 10px 12px;
-      background: #eff6ff;
-      color: #1e3a8a;
-      border: 1px solid #bfdbfe;
-      border-radius: 12px;
-      font-weight: 750;
-      line-height: 1.5;
-    }
-
-    .teacher-strip {
-      margin: 16px auto 0;
-      max-width: 1080px;
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 10px;
-    }
-
-    .pill {
-      padding: 7px 12px;
-      border-radius: 999px;
-      background: rgba(255, 255, 255, 0.82);
-      border: 1px solid #cbd5e1;
-      color: #334155;
-      font-size: 13px;
-      font-weight: 800;
-      box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08);
-    }
-
-    .energy-bars {
-      display: grid;
-      gap: 8px;
-      margin-top: 12px;
-    }
-
-    .bar-row {
-      display: grid;
-      grid-template-columns: 74px 1fr 72px;
-      align-items: center;
-      gap: 8px;
-      color: var(--muted);
-      font-size: 12px;
-      font-weight: 750;
-    }
-
-    .bar-track {
-      height: 12px;
-      border-radius: 999px;
-      background: #e2e8f0;
+      border-radius: 18px;
       overflow: hidden;
-      border: 1px solid #cbd5e1;
+      background: linear-gradient(#eef6ff 0 62%, #f2f7ef 62%);
     }
-
-    .bar-fill {
-      height: 100%;
-      width: 0%;
-      border-radius: inherit;
-      transition: width 0.12s linear;
-    }
-
-    .formula {
-      background: #0f172a;
-      color: #e2e8f0;
-      border-radius: 14px;
-      padding: 12px;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-      font-size: 13px;
-      line-height: 1.6;
-      overflow-x: auto;
-    }
-
-    @media (max-width: 1080px) {
-      main { grid-template-columns: 1fr; }
-      .controls { grid-template-columns: repeat(2, minmax(150px, 1fr)); }
-      .canvas-wrap { min-height: 380px; }
+    canvas { width: 100%; height: 100%; display: block; }
+    .panel { padding: 16px; }
+    h2 { margin: 0 0 12px; font-size: 23px; }
+    .legend-list, .notes { margin: 0; padding-left: 20px; color: var(--muted); font-size: 16px; line-height: 1.75; }
+    .legend-list b { color: var(--ink); }
+    .swatch { display: inline-block; width: 14px; height: 14px; border-radius: 50%; margin-right: 6px; vertical-align: -1px; }
+    .metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .metric { padding: 11px 12px; border-radius: 14px; background: #f8fafc; border: 1px solid var(--line); }
+    .metric span { display: block; color: var(--muted); font-size: 13px; font-weight: 750; }
+    .metric strong { display: block; margin-top: 4px; font-size: 20px; font-variant-numeric: tabular-nums; }
+    .energy { display: grid; gap: 10px; margin-top: 12px; }
+    .bar-row { display: grid; grid-template-columns: 92px 1fr 76px; gap: 8px; align-items: center; font-size: 13px; color: var(--muted); font-weight: 800; }
+    .track { height: 14px; border-radius: 999px; background: #e2e8f0; overflow: hidden; border: 1px solid #cbd5e1; }
+    .fill { height: 100%; border-radius: 999px; width: 0%; }
+    .formula { background: #0f172a; color: #e5edf8; border-radius: 16px; padding: 13px; font-size: 14px; line-height: 1.7; white-space: pre-wrap; }
+    .control-grid { display: grid; grid-template-columns: repeat(5, minmax(160px, 1fr)); gap: 14px; }
+    label { display: grid; gap: 7px; color: var(--muted); font-size: 15px; font-weight: 800; }
+    label output { color: var(--ink); font-size: 18px; font-variant-numeric: tabular-nums; }
+    input[type="range"] { width: 100%; accent-color: #2563eb; }
+    .buttons { margin-top: 14px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    button { border: 0; border-radius: 999px; padding: 12px 20px; background: #2563eb; color: white; font-size: 16px; font-weight: 900; cursor: pointer; }
+    button.secondary { background: #475569; }
+    .hint { color: var(--muted); font-size: 15px; font-weight: 700; }
+    @media (max-width: 1120px) {
+      .app { grid-template-columns: 1fr; grid-template-areas: "scene" "side" "controls"; }
+      .canvas-frame { min-height: 430px; }
+      .control-grid { grid-template-columns: repeat(2, minmax(160px, 1fr)); }
     }
   </style>
 </head>
 <body>
   <header>
-    <h1>斜面弹簧模型：能量与受力动画</h1>
-    <p class="subtitle">物块沿斜面下滑，接触底部弹簧后被压缩并可能回弹。仿真包含重力沿斜面分量、支持力、动摩擦力与弹簧力；所有受力箭头均从物块中心同一点出发。</p>
-    <div class="teacher-strip" aria-label="教学重点">
-      <span class="pill">教师视角：分阶段讲解</span>
-      <span class="pill">物理视角：受力与能量守恒/耗散</span>
-      <span class="pill">设计视角：大字号、低干扰、课堂投屏</span>
-    </div>
+    <h1>斜面弹簧模型：正确几何与受力演示</h1>
+    <p class="subtitle">斜面方向向量 e_t 指向弹簧，法向量 e_n 垂直斜面向外；弹簧平行 e_t 伸缩，挡板平行 e_n 绘制，因此挡板始终垂直斜面。</p>
   </header>
 
-  <main>
+  <main class="app">
     <section class="card scene-card">
-      <div class="canvas-wrap">
-        <canvas id="scene" width="1280" height="720" aria-label="斜面弹簧物理动画"></canvas>
-      </div>
-      <div class="controls">
-        <label>物块质量 m <span class="value" id="mVal"></span><input id="mass" type="range" min="0.5" max="5" step="0.1" value="2"></label>
-        <label>弹簧劲度系数 k <span class="value" id="kVal"></span><input id="springK" type="range" min="40" max="600" step="10" value="180"></label>
-        <label>斜面角度 θ <span class="value" id="thetaVal"></span><input id="theta" type="range" min="0" max="90" step="1" value="30"></label>
-        <label>动摩擦因数 μ <span class="value" id="muVal"></span><input id="mu" type="range" min="0" max="0.8" step="0.01" value="0.12"></label>
-        <label>初始距离 L <span class="value" id="lVal"></span><input id="distance" type="range" min="0.5" max="7" step="0.1" value="4"></label>
-      </div>
-      <div class="buttons">
-        <button id="playPause">暂停</button>
-        <button class="secondary" id="reset">重置</button>
-        <span class="speed-note">课堂慢速演示：仿真时间约为真实时间的 35%</span>
-      </div>
+      <div class="stage-banner" id="stageText">未接触弹簧</div>
+      <div class="canvas-frame"><canvas id="scene" width="1200" height="900" aria-label="斜面弹簧动画"></canvas></div>
     </section>
 
     <aside class="side">
       <section class="card panel">
         <h2>实时数据</h2>
-        <div class="status" id="statusText"></div>
-        <div class="data-grid" id="metrics"></div>
-        <div class="energy-bars" id="energyBars" aria-label="能量条形图"></div>
+        <div class="metrics" id="metrics"></div>
+        <div class="energy" id="energyBars"></div>
       </section>
       <section class="card panel">
-        <h2>图例与重要位置</h2>
-        <ul class="legend">
-          <li><b>红色 G</b>：重力；<b>蓝色 N</b>：支持力；<b>橙色 f</b>：动摩擦力；<b>紫色 Fₛ</b>：弹力。</li>
-          <li>斜面上标出：初始位置、刚接触弹簧位置、最大压缩位置、回弹位置、最终停止位置。</li>
-          <li>弹力只在接触弹簧后出现；摩擦力始终与相对运动趋势或运动方向相反。</li>
-          <li>虚线箭头 mg·sinθ 是重力沿斜面方向的教学辅助分解，便于课堂讲解。</li>
-          <li>挡板始终沿斜面法线方向绘制，因此挡板面垂直于斜面，弹簧轴线平行斜面。</li>
+        <h2>受力图例</h2>
+        <ul class="legend-list">
+          <li><span class="swatch" style="background:var(--red)"></span><b>红色 G</b>：重力，竖直向下</li>
+          <li><span class="swatch" style="background:var(--blue)"></span><b>蓝色 N</b>：支持力，垂直斜面向外</li>
+          <li><span class="swatch" style="background:var(--orange)"></span><b>橙色 f</b>：摩擦力，阻碍相对运动</li>
+          <li><span class="swatch" style="background:var(--purple)"></span><b>紫色 F</b>：弹力，沿斜面远离挡板</li>
         </ul>
       </section>
       <section class="card panel">
-        <h2>计算规则</h2>
-        <div class="formula">沿斜面向下为正：
-未接触弹簧：F合 = mg sinθ - f
-接触弹簧：F合 = mg sinθ - kx - f
-x = max(0, s - L)，且 0 ≤ x ≤ x_max
-挡板位置：s = L + 弹簧原长；挡板方向 = 斜面法线方向
-Eₖ = 1/2 mv²，Eₛ = 1/2 kx²
-摩擦耗能按 μmgcosθ · |ds| 累计
-若 |mg sinθ-kx| ≤ μmgcosθ 且 v≈0，则静止</div>
-        <ul class="notes">
-          <li>当速度很小且合力不足以克服静摩擦趋势时，物块判定为停止。</li>
-          <li>弹簧压缩量被限制在 0 到最大压缩范围内，物块不会穿过弹簧端点。</li>
-        </ul>
+        <h2>物理与几何</h2>
+        <div class="formula">e_t = (cosθ, sinθ)，沿斜面向下指向弹簧
+e_n = (-sinθ, -cosθ)，垂直斜面向外
+弹簧轴线 ∥ e_t；挡板方向 ∥ e_n
+x = max(0, s - L)，且 x 不超过弹簧可压缩量
+未接触：F_t = mg sinθ - f
+接触后：F_t = mg sinθ - kx - f</div>
       </section>
     </aside>
+
+    <section class="card controls-card">
+      <div class="control-grid">
+        <label>物块质量 m <output id="mVal"></output><input id="mass" type="range" min="0.5" max="5" step="0.1" value="2"></label>
+        <label>弹簧劲度系数 k <output id="kVal"></output><input id="springK" type="range" min="40" max="600" step="10" value="180"></label>
+        <label>斜面角度 θ <output id="thetaVal"></output><input id="theta" type="range" min="0" max="90" step="1" value="30"></label>
+        <label>动摩擦因数 μ <output id="muVal"></output><input id="mu" type="range" min="0" max="0.8" step="0.01" value="0.12"></label>
+        <label>初始距离 L <output id="lVal"></output><input id="distance" type="range" min="0.8" max="6" step="0.1" value="3.4"></label>
+      </div>
+      <div class="buttons">
+        <button id="playPause">暂停</button>
+        <button class="secondary" id="reset">重置</button>
+        <span class="hint">慢速课堂演示：仿真时间约为真实时间的 32%，参数区独立在下方。</span>
+      </div>
+    </section>
   </main>
 
   <script>
     const canvas = document.getElementById('scene');
     const ctx = canvas.getContext('2d');
+    const W = canvas.width, H = canvas.height;
     const g = 9.8;
-    const slowMotion = 0.35;
-    const springFreeLength = 1.15;
-    const maxCompressionLimit = 1.05;
-
+    const slowMotion = 0.32;
+    const springFreeLength = 1.45;
+    const minSpringLength = 0.22;
+    const blockHalfM = 0.58;
+    const rampPixels = W * 0.70;
     const els = {
-      mass: document.getElementById('mass'), springK: document.getElementById('springK'), theta: document.getElementById('theta'),
-      mu: document.getElementById('mu'), distance: document.getElementById('distance'), playPause: document.getElementById('playPause'),
-      reset: document.getElementById('reset'), statusText: document.getElementById('statusText'), metrics: document.getElementById('metrics'), energyBars: document.getElementById('energyBars'),
-      mVal: document.getElementById('mVal'), kVal: document.getElementById('kVal'), thetaVal: document.getElementById('thetaVal'),
-      muVal: document.getElementById('muVal'), lVal: document.getElementById('lVal')
+      stageText: document.getElementById('stageText'), metrics: document.getElementById('metrics'), energyBars: document.getElementById('energyBars'),
+      mass: document.getElementById('mass'), springK: document.getElementById('springK'), theta: document.getElementById('theta'), mu: document.getElementById('mu'), distance: document.getElementById('distance'),
+      mVal: document.getElementById('mVal'), kVal: document.getElementById('kVal'), thetaVal: document.getElementById('thetaVal'), muVal: document.getElementById('muVal'), lVal: document.getElementById('lVal'),
+      playPause: document.getElementById('playPause'), reset: document.getElementById('reset')
     };
-
-    let params, state, running = true, lastTime = performance.now(), markers = {};
+    let params, state, running = true, last = performance.now();
 
     function readParams() {
+      return { m: +els.mass.value, k: +els.springK.value, thetaDeg: +els.theta.value, mu: +els.mu.value, L: +els.distance.value };
+    }
+
+    function geometry() {
+      const theta = params.thetaDeg * Math.PI / 180;
+      const eT = { x: Math.cos(theta), y: Math.sin(theta) };
+      const eN = { x: -Math.sin(theta), y: -Math.cos(theta) };
+      const physicalRamp = params.L + blockHalfM + springFreeLength + 1.0;
+      const scale = rampPixels / physicalRamp;
+      const center = { x: W * 0.42, y: H * 0.50 };
+      const start = { x: center.x - eT.x * rampPixels * 0.48, y: center.y - eT.y * rampPixels * 0.48 };
+      return { theta, eT, eN, scale, start, boardS: params.L + blockHalfM + springFreeLength };
+    }
+
+    function pointAt(s, normalOffset = 0) {
+      const q = geometry();
       return {
-        m: Number(els.mass.value), k: Number(els.springK.value), thetaDeg: Number(els.theta.value),
-        mu: Number(els.mu.value), L: Number(els.distance.value)
+        x: q.start.x + q.eT.x * s * q.scale + q.eN.x * normalOffset,
+        y: q.start.y + q.eT.y * s * q.scale + q.eN.y * normalOffset,
+        ...q
       };
     }
 
     function resetSimulation() {
       params = readParams();
-      state = { s: 0, v: 0, t: 0, frictionWork: 0, stopped: false, maxX: 0, maxCompressionS: null, reboundS: null, finalS: null };
-      markers = { start: 0, contact: params.L, maxCompression: null, rebound: null, finalStop: null };
+      state = { s: 0, v: 0, t: 0, heat: 0, maxX: 0, phase: '未接触弹簧', stopped: false, maxMarked: false, reboundMarked: false };
       updateLabels();
+      updateUI();
       draw();
-      updateMetrics(0, 0, 0, 0);
     }
 
     function updateLabels() {
@@ -367,234 +204,194 @@ Eₖ = 1/2 mv²，Eₛ = 1/2 kx²
       els.lVal.textContent = `${params.L.toFixed(1)} m`;
     }
 
+    function compression(s) { return Math.max(0, s - params.L); }
+
     function forceState(s, v) {
-      const theta = params.thetaDeg * Math.PI / 180;
-      const x = Math.max(0, s - params.L);
-      const gravityAlong = params.m * g * Math.sin(theta);
-      const normalForce = params.m * g * Math.cos(theta);
-      const springForce = params.k * x;
-      const drive = gravityAlong - springForce;
-      const maxFriction = params.mu * normalForce;
-      let frictionForce = 0;
-      let stoppedByStatic = false;
-
-      if (Math.abs(v) > 0.01) {
-        frictionForce = -Math.sign(v) * maxFriction;
-      } else if (Math.abs(drive) <= maxFriction + 0.02) {
-        frictionForce = -drive;
-        stoppedByStatic = true;
-      } else {
-        frictionForce = -Math.sign(drive) * maxFriction;
-      }
-
-      const netForce = drive + frictionForce;
-      return { theta, x, gravityAlong, normalForce, springForce, maxFriction, frictionForce, netForce, stoppedByStatic };
-    }
-
-    function acceleration(s, v) {
-      const f = forceState(s, v);
-      return f.stoppedByStatic ? 0 : f.netForce / params.m;
+      const q = geometry();
+      const x = compression(s);
+      const gravityAlong = params.m * g * Math.sin(q.theta);
+      const normal = params.m * g * Math.cos(q.theta);
+      const spring = params.k * x;
+      const drive = gravityAlong - spring;
+      const fMax = params.mu * normal;
+      let friction = 0;
+      let staticStop = false;
+      if (Math.abs(v) > 0.012) friction = -Math.sign(v) * fMax;
+      else if (Math.abs(drive) <= fMax + 0.02) { friction = -drive; staticStop = true; }
+      else friction = -Math.sign(drive || 1) * fMax;
+      return { ...q, x, gravityAlong, normal, spring, friction, fMax, net: drive + friction, staticStop };
     }
 
     function step(dt) {
       if (state.stopped) return;
-      const maxStep = 1 / 300;
-      let remain = dt * slowMotion;
-      while (remain > 0) {
-        const h = Math.min(maxStep, remain);
+      let left = dt * slowMotion;
+      const hMax = 1 / 300;
+      while (left > 0) {
+        const h = Math.min(hMax, left);
         const oldS = state.s;
-        const f0 = forceState(state.s, state.v);
-        if (f0.stoppedByStatic && Math.abs(state.v) < 0.012) {
-          state.v = 0;
-          state.stopped = true;
-          markers.finalStop = state.s;
-          break;
-        }
-
-        state.v += (f0.netForce / params.m) * h;
+        const f = forceState(state.s, state.v);
+        if (f.staticStop && Math.abs(state.v) < 0.014) { state.v = 0; state.stopped = true; state.phase = '停止'; break; }
+        state.v += (f.net / params.m) * h;
         state.s += state.v * h;
-        state.s = Math.max(0, Math.min(params.L + maxCompressionLimit, state.s));
-        if (state.s >= params.L + maxCompressionLimit && state.v > 0) state.v = 0;
+        const maxCompression = springFreeLength - minSpringLength;
+        state.s = Math.max(0, Math.min(params.L + maxCompression, state.s));
+        if (state.s >= params.L + maxCompression && state.v > 0) state.v = 0;
         if (state.s <= 0 && state.v < 0) state.v = 0;
-        state.frictionWork += f0.maxFriction * Math.abs(state.s - oldS);
+        state.heat += f.fMax * Math.abs(state.s - oldS);
         state.t += h;
-
-        const x = Math.max(0, state.s - params.L);
-        if (x > state.maxX + 0.0005) {
-          state.maxX = x;
-          markers.maxCompression = state.s;
-        }
-        if (oldS >= params.L && state.s < params.L && state.v < -0.02 && markers.rebound === null) markers.rebound = params.L;
-
-        const f1 = forceState(state.s, state.v);
-        if ((f1.stoppedByStatic && Math.abs(state.v) < 0.018) || state.t > 90) {
-          state.v = 0;
-          state.stopped = true;
-          markers.finalStop = state.s;
-        }
-        remain -= h;
+        const x = compression(state.s);
+        if (x > state.maxX) state.maxX = x;
+        if (x <= 0.002) state.phase = state.v < -0.02 ? '反弹上滑' : '未接触弹簧';
+        else if (state.v > 0.035) state.phase = '正在压缩弹簧';
+        else if (Math.abs(state.v) <= 0.035 && x > 0.02) state.phase = '最大压缩位置';
+        else if (state.v < -0.035) state.phase = '反弹上滑';
+        const f2 = forceState(state.s, state.v);
+        if ((f2.staticStop && Math.abs(state.v) < 0.018) || state.t > 90) { state.v = 0; state.stopped = true; state.phase = '停止'; }
+        left -= h;
       }
     }
 
-    function worldToCanvas(s, offset = 0) {
-      const theta = params.thetaDeg * Math.PI / 180;
-      const origin = { x: 170, y: 150 };
-      const totalLength = params.L + springFreeLength + maxCompressionLimit + 0.7;
-      const scale = Math.min(105, 900 / (totalLength * Math.max(0.12, Math.cos(theta))), 520 / (totalLength * Math.max(0.12, Math.sin(theta))));
-      const along = { x: Math.cos(theta), y: Math.sin(theta) };
-      const normal = { x: -Math.sin(theta), y: Math.cos(theta) };
-      return { x: origin.x + along.x * s * scale + normal.x * offset, y: origin.y + along.y * s * scale + normal.y * offset, scale, along, normal, origin };
-    }
-
-    function arrow(from, vec, color, label) {
+    function arrow(origin, vec, color) {
       const len = Math.hypot(vec.x, vec.y);
-      if (len < 3) return;
-      const to = { x: from.x + vec.x, y: from.y + vec.y };
-      ctx.save(); ctx.strokeStyle = color; ctx.fillStyle = color; ctx.lineWidth = 4; ctx.lineCap = 'round';
-      ctx.beginPath(); ctx.moveTo(from.x, from.y); ctx.lineTo(to.x, to.y); ctx.stroke();
+      if (len < 4) return;
       const ux = vec.x / len, uy = vec.y / len;
-      ctx.beginPath(); ctx.moveTo(to.x, to.y); ctx.lineTo(to.x - 12 * ux - 6 * uy, to.y - 12 * uy + 6 * ux); ctx.lineTo(to.x - 12 * ux + 6 * uy, to.y - 12 * uy - 6 * ux); ctx.closePath(); ctx.fill();
-      ctx.font = '700 18px sans-serif'; ctx.fillText(label, to.x + 8, to.y + 4); ctx.restore();
+      const end = { x: origin.x + vec.x, y: origin.y + vec.y };
+      ctx.save();
+      ctx.strokeStyle = color; ctx.fillStyle = color; ctx.lineWidth = 5; ctx.lineCap = 'round';
+      ctx.beginPath(); ctx.moveTo(origin.x, origin.y); ctx.lineTo(end.x, end.y); ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(end.x, end.y);
+      ctx.lineTo(end.x - ux * 16 - uy * 8, end.y - uy * 16 + ux * 8);
+      ctx.lineTo(end.x - ux * 16 + uy * 8, end.y - uy * 16 - ux * 8);
+      ctx.closePath(); ctx.fill(); ctx.restore();
     }
 
-    function drawMarker(s, text, color, yShift = 0) {
-      if (s === null || s === undefined) return;
-      const p = worldToCanvas(s, -42);
-      ctx.save(); ctx.strokeStyle = color; ctx.fillStyle = color; ctx.lineWidth = 2;
+    function marker(s, text, color, lift) {
+      const p = pointAt(s, 96 + lift);
+      const foot = pointAt(s, 42);
+      ctx.save();
+      ctx.strokeStyle = color; ctx.fillStyle = color; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(foot.x, foot.y); ctx.lineTo(p.x, p.y); ctx.stroke();
       ctx.beginPath(); ctx.arc(p.x, p.y, 7, 0, Math.PI * 2); ctx.fill();
-      ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p.x, p.y - 36 - yShift); ctx.stroke();
-      ctx.font = '700 15px sans-serif'; ctx.textAlign = 'center';
-      ctx.fillText(text, p.x, p.y - 44 - yShift); ctx.restore();
+      ctx.font = '800 18px sans-serif'; ctx.textAlign = 'center'; ctx.fillText(text, p.x, p.y - 12);
+      ctx.restore();
     }
 
-    function drawSpring(compression) {
-      const coils = 9;
-      const boardS = params.L + springFreeLength;
-      const length = Math.max(0.12, springFreeLength - compression);
-      const contactS = boardS - length;
-      const amp = 18;
-      const base = worldToCanvas(contactS, -26);
-      const end = worldToCanvas(boardS, -26);
-      const boardCenter = worldToCanvas(boardS, -26);
-      const halfBoard = 58;
-      const halfThickness = 8;
-      const n = boardCenter.normal;
-      const a = boardCenter.along;
-
+    function drawRamp() {
+      const q = geometry();
+      const start = q.start;
+      const end = { x: start.x + q.eT.x * rampPixels, y: start.y + q.eT.y * rampPixels };
+      const down = 190;
       ctx.save();
-      ctx.fillStyle = '#475569';
-      ctx.strokeStyle = '#1e293b';
-      ctx.lineWidth = 3;
+      ctx.fillStyle = '#dbeafe';
       ctx.beginPath();
-      ctx.moveTo(boardCenter.x + n.x * halfBoard + a.x * halfThickness, boardCenter.y + n.y * halfBoard + a.y * halfThickness);
-      ctx.lineTo(boardCenter.x - n.x * halfBoard + a.x * halfThickness, boardCenter.y - n.y * halfBoard + a.y * halfThickness);
-      ctx.lineTo(boardCenter.x - n.x * halfBoard - a.x * halfThickness, boardCenter.y - n.y * halfBoard - a.y * halfThickness);
-      ctx.lineTo(boardCenter.x + n.x * halfBoard - a.x * halfThickness, boardCenter.y + n.y * halfBoard - a.y * halfThickness);
-      ctx.closePath();
-      ctx.fill();
-      ctx.stroke();
+      ctx.moveTo(start.x, start.y); ctx.lineTo(end.x, end.y);
+      ctx.lineTo(end.x - q.eN.x * down, end.y - q.eN.y * down);
+      ctx.lineTo(start.x - q.eN.x * down, start.y - q.eN.y * down);
+      ctx.closePath(); ctx.fill();
+      ctx.strokeStyle = '#1f2937'; ctx.lineWidth = 7;
+      ctx.beginPath(); ctx.moveTo(start.x, start.y); ctx.lineTo(end.x, end.y); ctx.stroke();
       ctx.restore();
+    }
+
+    function drawSpringAndStop(x) {
+      const q = geometry();
+      const length = Math.max(minSpringLength, springFreeLength - x);
+      const contactS = q.boardS - length;
+      const base = pointAt(contactS, 34);
+      const end = pointAt(q.boardS, 34);
+      const board = pointAt(q.boardS, 34);
+      const halfBoard = 96;
+      const halfThick = 13;
+      ctx.save();
+      ctx.fillStyle = '#475569'; ctx.strokeStyle = '#111827'; ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.moveTo(board.x + q.eN.x * halfBoard + q.eT.x * halfThick, board.y + q.eN.y * halfBoard + q.eT.y * halfThick);
+      ctx.lineTo(board.x - q.eN.x * halfBoard + q.eT.x * halfThick, board.y - q.eN.y * halfBoard + q.eT.y * halfThick);
+      ctx.lineTo(board.x - q.eN.x * halfBoard - q.eT.x * halfThick, board.y - q.eN.y * halfBoard - q.eT.y * halfThick);
+      ctx.lineTo(board.x + q.eN.x * halfBoard - q.eT.x * halfThick, board.y + q.eN.y * halfBoard - q.eT.y * halfThick);
+      ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.restore();
 
       ctx.save();
-      ctx.strokeStyle = '#7c3aed';
-      ctx.lineWidth = 4;
-      ctx.lineJoin = 'round';
-      ctx.beginPath();
-      ctx.moveTo(base.x, base.y);
+      ctx.strokeStyle = '#7c3aed'; ctx.lineWidth = 7; ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+      ctx.beginPath(); ctx.moveTo(base.x, base.y);
+      const coils = 10, amp = 36;
       for (let i = 1; i <= coils * 2; i++) {
-        const q = i / (coils * 2 + 1);
-        const mid = worldToCanvas(contactS + length * q, -26 + (i % 2 ? amp : -amp));
-        ctx.lineTo(mid.x, mid.y);
+        const u = i / (coils * 2 + 1);
+        const side = i % 2 ? amp : -amp;
+        const p = pointAt(contactS + length * u, 34 + side);
+        ctx.lineTo(p.x, p.y);
       }
-      ctx.lineTo(end.x, end.y);
-      ctx.stroke();
-
-      ctx.fillStyle = '#7c3aed';
-      ctx.beginPath();
-      ctx.arc(base.x, base.y, 6, 0, Math.PI * 2);
-      ctx.fill();
+      ctx.lineTo(end.x, end.y); ctx.stroke();
+      ctx.fillStyle = '#7c3aed'; ctx.beginPath(); ctx.arc(base.x, base.y, 10, 0, Math.PI * 2); ctx.fill();
       ctx.restore();
+    }
+
+    function drawBlockAndForces(f) {
+      const q = geometry();
+      const size = Math.max(138, q.scale * blockHalfM * 2);
+      const center = pointAt(state.s, size / 2 + 8);
+      ctx.save();
+      ctx.translate(center.x, center.y); ctx.rotate(q.theta);
+      ctx.fillStyle = '#f59e0b'; ctx.strokeStyle = '#92400e'; ctx.lineWidth = 5;
+      ctx.fillRect(-size / 2, -size / 2, size, size); ctx.strokeRect(-size / 2, -size / 2, size, size);
+      ctx.restore();
+
+      const arrowCap = 96;
+      arrow(center, { x: 0, y: arrowCap }, '#dc2626');
+      arrow(center, { x: q.eN.x * arrowCap, y: q.eN.y * arrowCap }, '#2563eb');
+      const fDir = Math.sign(f.friction || -state.v || -f.gravityAlong || -1);
+      arrow(center, { x: q.eT.x * fDir * 82, y: q.eT.y * fDir * 82 }, '#f59e0b');
+      if (f.x > 0.001) arrow(center, { x: -q.eT.x * 90, y: -q.eT.y * 90 }, '#7c3aed');
+    }
+
+    function drawMarkers() {
+      const q = geometry();
+      marker(0, '初始位置', '#16a34a', 0);
+      marker(params.L, '刚接触弹簧', '#2563eb', 24);
+      marker(params.L + Math.max(state.maxX, 0.01), '最大压缩位置', '#7c3aed', 48);
+      if (state.phase === '反弹上滑' || state.stopped) marker(params.L, '回弹位置', '#f97316', 72);
+      if (state.stopped) marker(state.s, '最终停止位置', '#dc2626', 96);
     }
 
     function draw() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      const theta = params.thetaDeg * Math.PI / 180;
-      const forces = forceState(state.s, state.v);
-      const x = forces.x;
-      const rampEndS = params.L + springFreeLength + 0.45;
-      const a = worldToCanvas(0, 0), b = worldToCanvas(rampEndS, 0), ground = worldToCanvas(rampEndS, 180);
-
-      ctx.save();
-      ctx.fillStyle = '#dbeafe'; ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.lineTo(ground.x, ground.y); ctx.lineTo(a.x, a.y + 180); ctx.closePath(); ctx.fill();
-      ctx.strokeStyle = '#334155'; ctx.lineWidth = 5; ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
-      ctx.font = '800 18px sans-serif'; ctx.fillStyle = '#0f172a'; ctx.fillText(`θ = ${params.thetaDeg}°`, a.x + 24, a.y + 52);
-      ctx.restore();
-
-      drawMarker(markers.start, '初始位置', '#16a34a', 0);
-      drawMarker(markers.contact, '刚接触弹簧', '#2563eb', 18);
-      drawMarker(markers.maxCompression, '最大压缩位置', '#7c3aed', 36);
-      drawMarker(markers.rebound, '回弹位置', '#ea580c', 54);
-      drawMarker(markers.finalStop, '最终停止位置', '#dc2626', 72);
-
-      drawSpring(x);
-
-      const block = worldToCanvas(state.s, -32);
-      const size = 54;
-      ctx.save(); ctx.translate(block.x, block.y); ctx.rotate(theta); ctx.fillStyle = '#f59e0b'; ctx.strokeStyle = '#92400e'; ctx.lineWidth = 3; ctx.fillRect(-size / 2, -size / 2, size, size); ctx.strokeRect(-size / 2, -size / 2, size, size); ctx.restore();
-
-      const center = block;
-      const forceScale = 2.4;
-      arrow(center, { x: 0, y: Math.min(115, params.m * g * forceScale) }, '#dc2626', 'G');
-      arrow(center, { x: block.normal.x * -Math.min(100, forces.normalForce * forceScale), y: block.normal.y * -Math.min(100, forces.normalForce * forceScale) }, '#2563eb', 'N');
-      const fLen = Math.min(85, Math.abs(forces.frictionForce) * forceScale * 1.8);
-      const fDir = Math.sign(forces.frictionForce || -forces.gravityAlong || -1);
-      arrow(center, { x: block.along.x * fDir * fLen, y: block.along.y * fDir * fLen }, '#d97706', 'f');
-      if (x > 0.001) arrow(center, { x: -block.along.x * Math.min(120, forces.springForce * forceScale / 3), y: -block.along.y * Math.min(120, forces.springForce * forceScale / 3) }, '#7c3aed', 'Fₛ');
-
-      ctx.save();
-      ctx.setLineDash([6, 5]);
-      ctx.globalAlpha = 0.75;
-      arrow(center, { x: block.along.x * Math.min(86, forces.gravityAlong * forceScale), y: block.along.y * Math.min(86, forces.gravityAlong * forceScale) }, '#ef4444', 'mg·sinθ');
-      ctx.restore();
-
-      updateMetrics(x, theta);
+      const f = forceState(state.s, state.v);
+      ctx.clearRect(0, 0, W, H);
+      drawRamp();
+      drawMarkers();
+      drawSpringAndStop(f.x);
+      drawBlockAndForces(f);
+      els.stageText.textContent = state.phase;
     }
 
-    function updateMetrics(x, theta) {
-      const hDrop = state.s * Math.sin(theta);
-      const peG = -params.m * g * hDrop;
+    function updateUI() {
+      const f = forceState(state.s, state.v);
       const ke = 0.5 * params.m * state.v * state.v;
-      const peS = 0.5 * params.k * x * x;
-      const metrics = [
-        ['速度 v', `${state.v.toFixed(2)} m/s`], ['位移 s', `${state.s.toFixed(2)} m`], ['弹簧压缩 x', `${x.toFixed(2)} m`], ['动能 Eₖ', `${ke.toFixed(2)} J`],
-        ['重力势能变化 ΔEₚ', `${peG.toFixed(2)} J`], ['弹性势能 Eₛ', `${peS.toFixed(2)} J`], ['摩擦耗能', `${state.frictionWork.toFixed(2)} J`], ['时间 t', `${state.t.toFixed(1)} s`]
+      const elastic = 0.5 * params.k * f.x * f.x;
+      const gravChange = -params.m * g * state.s * Math.sin(f.theta);
+      const rows = [
+        ['速度 v', `${state.v.toFixed(2)} m/s`], ['位移 s', `${state.s.toFixed(2)} m`], ['弹簧压缩 x', `${f.x.toFixed(2)} m`], ['动能', `${ke.toFixed(2)} J`],
+        ['弹性势能', `${elastic.toFixed(2)} J`], ['摩擦生热', `${state.heat.toFixed(2)} J`], ['重力势能变化', `${gravChange.toFixed(2)} J`], ['时间', `${state.t.toFixed(1)} s`]
       ];
-      els.metrics.innerHTML = metrics.map(([name, value]) => `<div class="metric"><span class="name">${name}</span><span class="num">${value}</span></div>`).join('');
-      const totalForScale = Math.max(1, ke + Math.abs(peG) + peS + state.frictionWork);
-      const bars = [
-        ['动能', ke, '#22c55e'], ['重力势能释放', Math.abs(peG), '#ef4444'], ['弹性势能', peS, '#8b5cf6'], ['摩擦耗能', state.frictionWork, '#f59e0b']
-      ];
-      els.energyBars.innerHTML = bars.map(([name, value, color]) => `<div class="bar-row"><span>${name}</span><span class="bar-track"><span class="bar-fill" style="width:${Math.min(100, value / totalForScale * 100).toFixed(1)}%;background:${color}"></span></span><span>${value.toFixed(1)} J</span></div>`).join('');
-      const phase = state.stopped ? '最终状态：物块已被静摩擦、弹簧力和重力共同平衡。' : x > 0 ? '接触弹簧阶段：观察弹性势能增加、速度减小以及回弹。' : '下滑阶段：重力沿斜面分力做正功，摩擦力做负功。';
-      els.statusText.textContent = phase;
+      els.metrics.innerHTML = rows.map(([a,b]) => `<div class="metric"><span>${a}</span><strong>${b}</strong></div>`).join('');
+      const energies = [['动能', ke, '#22c55e'], ['弹性势能', elastic, '#7c3aed'], ['摩擦生热', state.heat, '#f59e0b'], ['重力势能释放', Math.abs(gravChange), '#dc2626']];
+      const total = Math.max(1, ...energies.map(e => e[1]));
+      els.energyBars.innerHTML = energies.map(([name,val,color]) => `<div class="bar-row"><span>${name}</span><span class="track"><span class="fill" style="width:${Math.min(100, val / total * 100).toFixed(1)}%;background:${color}"></span></span><span>${val.toFixed(1)}J</span></div>`).join('');
     }
 
-    function animate(now) {
-      const dt = Math.min(0.05, (now - lastTime) / 1000);
-      lastTime = now;
+    function loop(now) {
+      const dt = Math.min(0.05, (now - last) / 1000);
+      last = now;
       if (running) step(dt);
-      draw();
-      requestAnimationFrame(animate);
+      draw(); updateUI();
+      requestAnimationFrame(loop);
     }
 
-    Object.values(els).forEach(el => {
-      if (el && el.tagName === 'INPUT') el.addEventListener('input', resetSimulation);
-    });
+    document.querySelectorAll('input[type="range"]').forEach(input => input.addEventListener('input', resetSimulation));
     els.playPause.addEventListener('click', () => { running = !running; els.playPause.textContent = running ? '暂停' : '播放'; });
-    els.reset.addEventListener('click', () => { resetSimulation(); running = true; els.playPause.textContent = '暂停'; });
-
+    els.reset.addEventListener('click', () => { running = true; els.playPause.textContent = '暂停'; resetSimulation(); });
     resetSimulation();
-    requestAnimationFrame(animate);
+    requestAnimationFrame(loop);
   </script>
 </body>
 </html>
