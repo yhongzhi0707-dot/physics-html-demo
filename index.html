@@ -1,0 +1,566 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>高中物理：斜面弹簧模型动画</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f4f7fb;
+      --panel: #ffffff;
+      --ink: #203040;
+      --muted: #627084;
+      --accent: #2563eb;
+      --accent2: #0f766e;
+      --danger: #dc2626;
+      --warn: #d97706;
+      --shadow: 0 12px 30px rgba(30, 41, 59, 0.12);
+      --line: #d6deeb;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", "Microsoft YaHei", sans-serif;
+      background: radial-gradient(circle at top left, #e0f2fe 0, transparent 34%), var(--bg);
+      color: var(--ink);
+    }
+
+    header {
+      padding: 22px 28px 10px;
+      text-align: center;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: clamp(24px, 3vw, 38px);
+      letter-spacing: 0.02em;
+    }
+
+    .subtitle {
+      margin: 0 auto;
+      max-width: 980px;
+      color: var(--muted);
+      line-height: 1.65;
+    }
+
+    main {
+      width: min(1440px, calc(100vw - 32px));
+      margin: 18px auto 32px;
+      display: grid;
+      grid-template-columns: minmax(680px, 1.45fr) minmax(360px, 0.8fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.94);
+      border: 1px solid rgba(214, 222, 235, 0.9);
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .scene-card { padding: 16px; }
+
+    .canvas-wrap {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      min-height: 470px;
+      background: linear-gradient(#eef7ff 0 64%, #e8f4e9 64% 100%);
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+    }
+
+    canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(120px, 1fr));
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    label {
+      display: grid;
+      gap: 5px;
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 650;
+    }
+
+    input[type="range"] { width: 100%; }
+
+    .value {
+      font-variant-numeric: tabular-nums;
+      color: var(--ink);
+      font-weight: 800;
+    }
+
+    .buttons {
+      margin-top: 14px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    button {
+      border: 0;
+      border-radius: 999px;
+      padding: 10px 16px;
+      color: white;
+      background: var(--accent);
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 8px 18px rgba(37, 99, 235, 0.22);
+    }
+
+    button.secondary {
+      background: #475569;
+      box-shadow: 0 8px 18px rgba(71, 85, 105, 0.18);
+    }
+
+    .speed-note {
+      margin-left: auto;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .side {
+      display: grid;
+      gap: 14px;
+    }
+
+    .panel { padding: 16px; }
+
+    h2 {
+      margin: 0 0 12px;
+      font-size: 20px;
+    }
+
+    .data-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .metric {
+      padding: 10px;
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+
+    .metric .name {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 5px;
+    }
+
+    .metric .num {
+      font-weight: 850;
+      font-variant-numeric: tabular-nums;
+      font-size: 18px;
+    }
+
+    .legend, .notes {
+      line-height: 1.65;
+      color: var(--muted);
+      padding-left: 18px;
+      margin: 8px 0 0;
+    }
+
+    .legend b { color: var(--ink); }
+
+    .status {
+      padding: 10px 12px;
+      background: #eff6ff;
+      color: #1e3a8a;
+      border: 1px solid #bfdbfe;
+      border-radius: 12px;
+      font-weight: 750;
+      line-height: 1.5;
+    }
+
+    .teacher-strip {
+      margin: 16px auto 0;
+      max-width: 1080px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .pill {
+      padding: 7px 12px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.82);
+      border: 1px solid #cbd5e1;
+      color: #334155;
+      font-size: 13px;
+      font-weight: 800;
+      box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08);
+    }
+
+    .energy-bars {
+      display: grid;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .bar-row {
+      display: grid;
+      grid-template-columns: 74px 1fr 72px;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 750;
+    }
+
+    .bar-track {
+      height: 12px;
+      border-radius: 999px;
+      background: #e2e8f0;
+      overflow: hidden;
+      border: 1px solid #cbd5e1;
+    }
+
+    .bar-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: inherit;
+      transition: width 0.12s linear;
+    }
+
+    .formula {
+      background: #0f172a;
+      color: #e2e8f0;
+      border-radius: 14px;
+      padding: 12px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 13px;
+      line-height: 1.6;
+      overflow-x: auto;
+    }
+
+    @media (max-width: 1080px) {
+      main { grid-template-columns: 1fr; }
+      .controls { grid-template-columns: repeat(2, minmax(150px, 1fr)); }
+      .canvas-wrap { min-height: 380px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>斜面弹簧模型：能量与受力动画</h1>
+    <p class="subtitle">物块沿斜面下滑，接触底部弹簧后被压缩并可能回弹。仿真包含重力沿斜面分量、支持力、动摩擦力与弹簧力；所有受力箭头均从物块中心同一点出发。</p>
+    <div class="teacher-strip" aria-label="教学重点">
+      <span class="pill">教师视角：分阶段讲解</span>
+      <span class="pill">物理视角：受力与能量守恒/耗散</span>
+      <span class="pill">设计视角：大字号、低干扰、课堂投屏</span>
+    </div>
+  </header>
+
+  <main>
+    <section class="card scene-card">
+      <div class="canvas-wrap">
+        <canvas id="scene" width="1280" height="720" aria-label="斜面弹簧物理动画"></canvas>
+      </div>
+      <div class="controls">
+        <label>物块质量 m <span class="value" id="mVal"></span><input id="mass" type="range" min="0.5" max="5" step="0.1" value="2"></label>
+        <label>弹簧劲度系数 k <span class="value" id="kVal"></span><input id="springK" type="range" min="40" max="600" step="10" value="180"></label>
+        <label>斜面角度 θ <span class="value" id="thetaVal"></span><input id="theta" type="range" min="0" max="90" step="1" value="30"></label>
+        <label>动摩擦因数 μ <span class="value" id="muVal"></span><input id="mu" type="range" min="0" max="0.8" step="0.01" value="0.12"></label>
+        <label>初始距离 L <span class="value" id="lVal"></span><input id="distance" type="range" min="0.5" max="7" step="0.1" value="4"></label>
+      </div>
+      <div class="buttons">
+        <button id="playPause">暂停</button>
+        <button class="secondary" id="reset">重置</button>
+        <span class="speed-note">课堂慢速演示：仿真时间约为真实时间的 35%</span>
+      </div>
+    </section>
+
+    <aside class="side">
+      <section class="card panel">
+        <h2>实时数据</h2>
+        <div class="status" id="statusText"></div>
+        <div class="data-grid" id="metrics"></div>
+        <div class="energy-bars" id="energyBars" aria-label="能量条形图"></div>
+      </section>
+      <section class="card panel">
+        <h2>图例与重要位置</h2>
+        <ul class="legend">
+          <li><b>红色 G</b>：重力；<b>蓝色 N</b>：支持力；<b>橙色 f</b>：动摩擦力；<b>紫色 Fₛ</b>：弹力。</li>
+          <li>斜面上标出：初始位置、刚接触弹簧位置、最大压缩位置、回弹位置、最终停止位置。</li>
+          <li>弹力只在接触弹簧后出现；摩擦力始终与相对运动趋势或运动方向相反。</li>
+          <li>虚线箭头 mg·sinθ 是重力沿斜面方向的教学辅助分解，便于课堂讲解。</li>
+        </ul>
+      </section>
+      <section class="card panel">
+        <h2>计算规则</h2>
+        <div class="formula">沿斜面向下为正：
+未接触弹簧：F合 = mg sinθ - f
+接触弹簧：F合 = mg sinθ - kx - f
+x = max(0, s - L)，且 0 ≤ x ≤ x_max
+Eₖ = 1/2 mv²，Eₛ = 1/2 kx²
+摩擦耗能按 μmgcosθ · |ds| 累计
+若 |mg sinθ-kx| ≤ μmgcosθ 且 v≈0，则静止</div>
+        <ul class="notes">
+          <li>当速度很小且合力不足以克服静摩擦趋势时，物块判定为停止。</li>
+          <li>弹簧压缩量被限制在 0 到最大压缩范围内，物块不会穿过弹簧端点。</li>
+        </ul>
+      </section>
+    </aside>
+  </main>
+
+  <script>
+    const canvas = document.getElementById('scene');
+    const ctx = canvas.getContext('2d');
+    const g = 9.8;
+    const slowMotion = 0.35;
+    const springFreeLength = 1.15;
+    const maxCompressionLimit = 1.05;
+
+    const els = {
+      mass: document.getElementById('mass'), springK: document.getElementById('springK'), theta: document.getElementById('theta'),
+      mu: document.getElementById('mu'), distance: document.getElementById('distance'), playPause: document.getElementById('playPause'),
+      reset: document.getElementById('reset'), statusText: document.getElementById('statusText'), metrics: document.getElementById('metrics'), energyBars: document.getElementById('energyBars'),
+      mVal: document.getElementById('mVal'), kVal: document.getElementById('kVal'), thetaVal: document.getElementById('thetaVal'),
+      muVal: document.getElementById('muVal'), lVal: document.getElementById('lVal')
+    };
+
+    let params, state, running = true, lastTime = performance.now(), markers = {};
+
+    function readParams() {
+      return {
+        m: Number(els.mass.value), k: Number(els.springK.value), thetaDeg: Number(els.theta.value),
+        mu: Number(els.mu.value), L: Number(els.distance.value)
+      };
+    }
+
+    function resetSimulation() {
+      params = readParams();
+      state = { s: 0, v: 0, t: 0, frictionWork: 0, stopped: false, maxX: 0, maxCompressionS: null, reboundS: null, finalS: null };
+      markers = { start: 0, contact: params.L, maxCompression: null, rebound: null, finalStop: null };
+      updateLabels();
+      draw();
+      updateMetrics(0, 0, 0, 0);
+    }
+
+    function updateLabels() {
+      els.mVal.textContent = `${params.m.toFixed(1)} kg`;
+      els.kVal.textContent = `${params.k.toFixed(0)} N/m`;
+      els.thetaVal.textContent = `${params.thetaDeg.toFixed(0)}°`;
+      els.muVal.textContent = params.mu.toFixed(2);
+      els.lVal.textContent = `${params.L.toFixed(1)} m`;
+    }
+
+    function forceState(s, v) {
+      const theta = params.thetaDeg * Math.PI / 180;
+      const x = Math.max(0, s - params.L);
+      const gravityAlong = params.m * g * Math.sin(theta);
+      const normalForce = params.m * g * Math.cos(theta);
+      const springForce = params.k * x;
+      const drive = gravityAlong - springForce;
+      const maxFriction = params.mu * normalForce;
+      let frictionForce = 0;
+      let stoppedByStatic = false;
+
+      if (Math.abs(v) > 0.01) {
+        frictionForce = -Math.sign(v) * maxFriction;
+      } else if (Math.abs(drive) <= maxFriction + 0.02) {
+        frictionForce = -drive;
+        stoppedByStatic = true;
+      } else {
+        frictionForce = -Math.sign(drive) * maxFriction;
+      }
+
+      const netForce = drive + frictionForce;
+      return { theta, x, gravityAlong, normalForce, springForce, maxFriction, frictionForce, netForce, stoppedByStatic };
+    }
+
+    function acceleration(s, v) {
+      const f = forceState(s, v);
+      return f.stoppedByStatic ? 0 : f.netForce / params.m;
+    }
+
+    function step(dt) {
+      if (state.stopped) return;
+      const maxStep = 1 / 300;
+      let remain = dt * slowMotion;
+      while (remain > 0) {
+        const h = Math.min(maxStep, remain);
+        const oldS = state.s;
+        const f0 = forceState(state.s, state.v);
+        if (f0.stoppedByStatic && Math.abs(state.v) < 0.012) {
+          state.v = 0;
+          state.stopped = true;
+          markers.finalStop = state.s;
+          break;
+        }
+
+        state.v += (f0.netForce / params.m) * h;
+        state.s += state.v * h;
+        state.s = Math.max(0, Math.min(params.L + maxCompressionLimit, state.s));
+        if (state.s >= params.L + maxCompressionLimit && state.v > 0) state.v = 0;
+        if (state.s <= 0 && state.v < 0) state.v = 0;
+        state.frictionWork += f0.maxFriction * Math.abs(state.s - oldS);
+        state.t += h;
+
+        const x = Math.max(0, state.s - params.L);
+        if (x > state.maxX + 0.0005) {
+          state.maxX = x;
+          markers.maxCompression = state.s;
+        }
+        if (oldS >= params.L && state.s < params.L && state.v < -0.02 && markers.rebound === null) markers.rebound = params.L;
+
+        const f1 = forceState(state.s, state.v);
+        if ((f1.stoppedByStatic && Math.abs(state.v) < 0.018) || state.t > 90) {
+          state.v = 0;
+          state.stopped = true;
+          markers.finalStop = state.s;
+        }
+        remain -= h;
+      }
+    }
+
+    function worldToCanvas(s, offset = 0) {
+      const theta = params.thetaDeg * Math.PI / 180;
+      const origin = { x: 170, y: 150 };
+      const totalLength = params.L + springFreeLength + maxCompressionLimit + 0.7;
+      const scale = Math.min(105, 900 / (totalLength * Math.max(0.12, Math.cos(theta))), 520 / (totalLength * Math.max(0.12, Math.sin(theta))));
+      const along = { x: Math.cos(theta), y: Math.sin(theta) };
+      const normal = { x: -Math.sin(theta), y: Math.cos(theta) };
+      return { x: origin.x + along.x * s * scale + normal.x * offset, y: origin.y + along.y * s * scale + normal.y * offset, scale, along, normal, origin };
+    }
+
+    function arrow(from, vec, color, label) {
+      const len = Math.hypot(vec.x, vec.y);
+      if (len < 3) return;
+      const to = { x: from.x + vec.x, y: from.y + vec.y };
+      ctx.save(); ctx.strokeStyle = color; ctx.fillStyle = color; ctx.lineWidth = 4; ctx.lineCap = 'round';
+      ctx.beginPath(); ctx.moveTo(from.x, from.y); ctx.lineTo(to.x, to.y); ctx.stroke();
+      const ux = vec.x / len, uy = vec.y / len;
+      ctx.beginPath(); ctx.moveTo(to.x, to.y); ctx.lineTo(to.x - 12 * ux - 6 * uy, to.y - 12 * uy + 6 * ux); ctx.lineTo(to.x - 12 * ux + 6 * uy, to.y - 12 * uy - 6 * ux); ctx.closePath(); ctx.fill();
+      ctx.font = '700 18px sans-serif'; ctx.fillText(label, to.x + 8, to.y + 4); ctx.restore();
+    }
+
+    function drawMarker(s, text, color, yShift = 0) {
+      if (s === null || s === undefined) return;
+      const p = worldToCanvas(s, -42);
+      ctx.save(); ctx.strokeStyle = color; ctx.fillStyle = color; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.arc(p.x, p.y, 7, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p.x, p.y - 36 - yShift); ctx.stroke();
+      ctx.font = '700 15px sans-serif'; ctx.textAlign = 'center';
+      ctx.fillText(text, p.x, p.y - 44 - yShift); ctx.restore();
+    }
+
+    function drawSpring(startS, compression) {
+      const coils = 9;
+      const length = Math.max(0.12, springFreeLength - compression);
+      const amp = 18;
+      const base = worldToCanvas(startS, -26);
+      const end = worldToCanvas(startS + length, -26);
+      ctx.save(); ctx.strokeStyle = '#7c3aed'; ctx.lineWidth = 4; ctx.lineJoin = 'round';
+      ctx.beginPath(); ctx.moveTo(base.x, base.y);
+      for (let i = 1; i <= coils * 2; i++) {
+        const q = i / (coils * 2 + 1);
+        const mid = worldToCanvas(startS + length * q, -26 + (i % 2 ? amp : -amp));
+        ctx.lineTo(mid.x, mid.y);
+      }
+      ctx.lineTo(end.x, end.y); ctx.stroke();
+      ctx.fillStyle = '#4c1d95'; ctx.fillRect(end.x - 8, end.y - 45, 16, 90); ctx.restore();
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const theta = params.thetaDeg * Math.PI / 180;
+      const forces = forceState(state.s, state.v);
+      const x = forces.x;
+      const rampEndS = params.L + springFreeLength + 0.35;
+      const a = worldToCanvas(0, 0), b = worldToCanvas(rampEndS, 0), ground = worldToCanvas(rampEndS, 180);
+
+      ctx.save();
+      ctx.fillStyle = '#dbeafe'; ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.lineTo(ground.x, ground.y); ctx.lineTo(a.x, a.y + 180); ctx.closePath(); ctx.fill();
+      ctx.strokeStyle = '#334155'; ctx.lineWidth = 5; ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+      ctx.font = '800 18px sans-serif'; ctx.fillStyle = '#0f172a'; ctx.fillText(`θ = ${params.thetaDeg}°`, a.x + 24, a.y + 52);
+      ctx.restore();
+
+      drawMarker(markers.start, '初始位置', '#16a34a', 0);
+      drawMarker(markers.contact, '刚接触弹簧', '#2563eb', 18);
+      drawMarker(markers.maxCompression, '最大压缩位置', '#7c3aed', 36);
+      drawMarker(markers.rebound, '回弹位置', '#ea580c', 54);
+      drawMarker(markers.finalStop, '最终停止位置', '#dc2626', 72);
+
+      drawSpring(params.L, x);
+
+      const block = worldToCanvas(state.s, -32);
+      const size = 54;
+      ctx.save(); ctx.translate(block.x, block.y); ctx.rotate(theta); ctx.fillStyle = '#f59e0b'; ctx.strokeStyle = '#92400e'; ctx.lineWidth = 3; ctx.fillRect(-size / 2, -size / 2, size, size); ctx.strokeRect(-size / 2, -size / 2, size, size); ctx.restore();
+
+      const center = block;
+      const forceScale = 2.4;
+      arrow(center, { x: 0, y: Math.min(115, params.m * g * forceScale) }, '#dc2626', 'G');
+      arrow(center, { x: block.normal.x * -Math.min(100, forces.normalForce * forceScale), y: block.normal.y * -Math.min(100, forces.normalForce * forceScale) }, '#2563eb', 'N');
+      const fLen = Math.min(85, Math.abs(forces.frictionForce) * forceScale * 1.8);
+      const fDir = Math.sign(forces.frictionForce || -forces.gravityAlong || -1);
+      arrow(center, { x: block.along.x * fDir * fLen, y: block.along.y * fDir * fLen }, '#d97706', 'f');
+      if (x > 0.001) arrow(center, { x: -block.along.x * Math.min(120, forces.springForce * forceScale / 3), y: -block.along.y * Math.min(120, forces.springForce * forceScale / 3) }, '#7c3aed', 'Fₛ');
+
+      ctx.save();
+      ctx.setLineDash([6, 5]);
+      ctx.globalAlpha = 0.75;
+      arrow(center, { x: block.along.x * Math.min(86, forces.gravityAlong * forceScale), y: block.along.y * Math.min(86, forces.gravityAlong * forceScale) }, '#ef4444', 'mg·sinθ');
+      ctx.restore();
+
+      updateMetrics(x, theta);
+    }
+
+    function updateMetrics(x, theta) {
+      const hDrop = state.s * Math.sin(theta);
+      const peG = -params.m * g * hDrop;
+      const ke = 0.5 * params.m * state.v * state.v;
+      const peS = 0.5 * params.k * x * x;
+      const metrics = [
+        ['速度 v', `${state.v.toFixed(2)} m/s`], ['位移 s', `${state.s.toFixed(2)} m`], ['弹簧压缩 x', `${x.toFixed(2)} m`], ['动能 Eₖ', `${ke.toFixed(2)} J`],
+        ['重力势能变化 ΔEₚ', `${peG.toFixed(2)} J`], ['弹性势能 Eₛ', `${peS.toFixed(2)} J`], ['摩擦耗能', `${state.frictionWork.toFixed(2)} J`], ['时间 t', `${state.t.toFixed(1)} s`]
+      ];
+      els.metrics.innerHTML = metrics.map(([name, value]) => `<div class="metric"><span class="name">${name}</span><span class="num">${value}</span></div>`).join('');
+      const totalForScale = Math.max(1, ke + Math.abs(peG) + peS + state.frictionWork);
+      const bars = [
+        ['动能', ke, '#22c55e'], ['重力势能释放', Math.abs(peG), '#ef4444'], ['弹性势能', peS, '#8b5cf6'], ['摩擦耗能', state.frictionWork, '#f59e0b']
+      ];
+      els.energyBars.innerHTML = bars.map(([name, value, color]) => `<div class="bar-row"><span>${name}</span><span class="bar-track"><span class="bar-fill" style="width:${Math.min(100, value / totalForScale * 100).toFixed(1)}%;background:${color}"></span></span><span>${value.toFixed(1)} J</span></div>`).join('');
+      const phase = state.stopped ? '最终状态：物块已被静摩擦、弹簧力和重力共同平衡。' : x > 0 ? '接触弹簧阶段：观察弹性势能增加、速度减小以及回弹。' : '下滑阶段：重力沿斜面分力做正功，摩擦力做负功。';
+      els.statusText.textContent = phase;
+    }
+
+    function animate(now) {
+      const dt = Math.min(0.05, (now - lastTime) / 1000);
+      lastTime = now;
+      if (running) step(dt);
+      draw();
+      requestAnimationFrame(animate);
+    }
+
+    Object.values(els).forEach(el => {
+      if (el && el.tagName === 'INPUT') el.addEventListener('input', resetSimulation);
+    });
+    els.playPause.addEventListener('click', () => { running = !running; els.playPause.textContent = running ? '暂停' : '播放'; });
+    els.reset.addEventListener('click', () => { resetSimulation(); running = true; els.playPause.textContent = '暂停'; });
+
+    resetSimulation();
+    requestAnimationFrame(animate);
+  </script>
+</body>
+</html>
