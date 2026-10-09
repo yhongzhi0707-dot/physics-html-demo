@@ -1,0 +1,6 @@
+{
+  "name": "rea-cloud-static-fixture",
+  "version": "1.0.0",
+  "private": true,
+  "main": "main.cjs"
+}

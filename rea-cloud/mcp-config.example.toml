@@ -1,0 +1,9 @@
+# Optional future Codex client registration; this file is a template.
+# It has NOT been applied to the running cloud session.
+# Add this table only in a client that loads user-configured stdio MCP servers.
+# This executable path was tested in a NEW Codex app-server thread.
+# If the new environment's npm prefix differs, use its actual bin/rea path.
+[mcp_servers.rea]
+command = "/home/agent/.local/bin/rea"
+args = ["mcp"]
+startup_timeout_sec = 30

@@ -1,0 +1,33 @@
+{
+  "description": "Sanitized record of prior cloud verification; this PR does not rerun installation or publish a cloud environment",
+  "verified_on": "2026-10-09",
+  "rea_version": "6.2.0",
+  "setup_sha256": "e878fb02381e80eed38e6f1277e838cc21bc4aee07355d146fe31ff822a9f431",
+  "existing_version_install_skipped": true,
+  "direct_dependencies": {
+    "checked": 32,
+    "mismatches": 0
+  },
+  "javascript_cli": {
+    "exit_code": 0,
+    "parsed_javascript_files": 5,
+    "parse_failures": 0,
+    "paired_renderer_transmissions": 1
+  },
+  "new_codex_backend_mcp": {
+    "runtime_status": "connected",
+    "tool_count": 139,
+    "mcp_analysis_success": true,
+    "model_turn_started": false
+  },
+  "independent_codex_model_turn": {
+    "exit_code": 1,
+    "failure": "HTTP 401 authentication failure"
+  },
+  "platform_environment_saved": false,
+  "platform_environment_published": false,
+  "new_cloud_vm_tested": false,
+  "installed_native_engines": [],
+  "raw_logs_in_repository": false,
+  "configuration_scope": "rea-cloud/ only; teaching application files unchanged"
+}

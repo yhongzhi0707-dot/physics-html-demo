@@ -1,0 +1,13 @@
+# Generated runtime output and local credentials are not repository config.
+results/
+node_modules/
+.env
+.env.*
+*.pem
+*.key
+*.log
+*.tar.gz
+fixtures/*.asar
+fixtures/**/.executed
+__pycache__/
+*.pyc
